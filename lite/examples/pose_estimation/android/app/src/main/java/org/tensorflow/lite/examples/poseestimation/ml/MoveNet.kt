@@ -23,6 +23,7 @@ import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.examples.poseestimation.data.*
 import org.tensorflow.lite.gpu.GpuDelegate
+import org.tensorflow.lite.nnapi.NnApiDelegate
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
@@ -38,7 +39,7 @@ enum class ModelType {
     Thunder
 }
 
-class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: GpuDelegate?) :
+class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: GpuDelegate?, private var nnApiDelegate: NnApiDelegate?) :
     PoseDetector {
 
     companion object {
@@ -58,6 +59,8 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
         fun create(context: Context, device: Device, modelType: ModelType): MoveNet {
             val options = Interpreter.Options()
             var gpuDelegate: GpuDelegate? = null
+            var nnApiDelegate: NnApiDelegate?= null
+            val nnapiopts = NnApiDelegate.Options()
             options.setNumThreads(CPU_NUM_THREADS)
             when (device) {
                 Device.CPU -> {
@@ -66,7 +69,14 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                     gpuDelegate = GpuDelegate()
                     options.addDelegate(gpuDelegate)
                 }
-                Device.NNAPI -> options.setUseNNAPI(true)
+                //Device.NNAPI -> options.setUseNNAPI(true)
+                Device.NNAPI -> {
+                    nnapiopts.setAcceleratorName("ten-xtensa")
+                    nnapiopts.setAllowFp16(true)
+                    nnapiopts.setUseNnapiCpu(false)
+                    nnApiDelegate = NnApiDelegate(nnapiopts)
+                    options.addDelegate(nnApiDelegate)
+                }
             }
             return MoveNet(
                 Interpreter(
@@ -76,7 +86,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                         else THUNDER_FILENAME
                     ), options
                 ),
-                gpuDelegate
+                gpuDelegate, nnApiDelegate
             )
         }
 
@@ -173,6 +183,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
 
     override fun close() {
         gpuDelegate?.close()
+        nnApiDelegate?.close()
         interpreter.close()
         cropRegion = null
     }
