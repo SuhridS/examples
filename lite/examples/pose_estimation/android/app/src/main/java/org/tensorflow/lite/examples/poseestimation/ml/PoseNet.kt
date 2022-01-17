@@ -28,6 +28,7 @@ import org.tensorflow.lite.examples.poseestimation.data.Device
 import org.tensorflow.lite.examples.poseestimation.data.KeyPoint
 import org.tensorflow.lite.examples.poseestimation.data.Person
 import org.tensorflow.lite.gpu.GpuDelegate
+import org.tensorflow.lite.nnapi.NnApiDelegate
 import org.tensorflow.lite.support.common.FileUtil
 import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -36,7 +37,7 @@ import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.image.ops.ResizeWithCropOrPadOp
 import kotlin.math.exp
 
-class PoseNet(private val interpreter: Interpreter, private var gpuDelegate: GpuDelegate?) :
+class PoseNet(private val interpreter: Interpreter, private var gpuDelegate: GpuDelegate?, private var nnApiDelegate: NnApiDelegate?) :
     PoseDetector {
 
     companion object {
@@ -49,6 +50,8 @@ class PoseNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
         fun create(context: Context, device: Device): PoseNet {
             val options = Interpreter.Options()
             var gpuDelegate: GpuDelegate? = null
+            var nnApiDelegate: NnApiDelegate? = null
+            val nnapiopts1 = NnApiDelegate.Options()
             options.setNumThreads(CPU_NUM_THREADS)
             when (device) {
                 Device.CPU -> {
@@ -57,7 +60,14 @@ class PoseNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                     gpuDelegate = GpuDelegate()
                     options.addDelegate(gpuDelegate)
                 }
-                Device.NNAPI -> options.setUseNNAPI(true)
+                //Device.NNAPI -> options.setUseNNAPI(true)
+                Device.NNAPI -> {
+                    nnapiopts1.setAcceleratorName("ten-xtensa")
+                    nnapiopts1.setAllowFp16(true)
+                    nnapiopts1.setUseNnapiCpu(false)
+                    nnApiDelegate = NnApiDelegate(nnapiopts1)
+                    options.addDelegate(nnApiDelegate)
+                }
             }
             return PoseNet(
                 Interpreter(
@@ -66,7 +76,7 @@ class PoseNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                         MODEL_FILENAME
                     ), options
                 ),
-                gpuDelegate
+                gpuDelegate, nnApiDelegate
             )
         }
     }
@@ -187,6 +197,7 @@ class PoseNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
 
     override fun close() {
         gpuDelegate?.close()
+        nnApiDelegate?.close()
         interpreter.close()
     }
 
