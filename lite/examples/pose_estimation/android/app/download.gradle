@@ -16,6 +16,16 @@ task downloadMovenetLightningModel(type: DownloadUrlTask) {
     target = file("src/main/assets/movenet_lightning.tflite")
 }
 
+task downloadMovenetLightningint8Model(type: DownloadUrlTask) {
+    def modelMovenetLightningDownloadint8Url = "https://tfhub.dev/google/lite-model/movenet/singlepose/lightning/tflite/int8/4?lite-format=tflite"
+    doFirst {
+        println "Downloading ${modelMovenetLightningDownloadint8Url}"
+    }
+    sourceUrl = "${modelMovenetLightningDownloadint8Url}"
+    target = file("src/main/assets/movenet_lightning_int8.tflite")
+}
+
+
 task downloadMovenetThunderModel(type: DownloadUrlTask) {
     def modelMovenetThunderDownloadUrl = "https://tfhub.dev/google/lite-model/movenet/singlepose/thunder/tflite/float16/4?lite-format=tflite"
     doFirst {
@@ -24,6 +34,16 @@ task downloadMovenetThunderModel(type: DownloadUrlTask) {
     sourceUrl = "${modelMovenetThunderDownloadUrl}"
     target = file("src/main/assets/movenet_thunder.tflite")
 }
+
+task downloadMovenetThunderint8Model(type: DownloadUrlTask) {
+    def modelMovenetThunderDownloadint8Url = "https://tfhub.dev/google/lite-model/movenet/singlepose/thunder/tflite/int8/4?lite-format=tflite"
+    doFirst {
+        println "Downloading ${modelMovenetThunderDownloadint8Url}"
+    }
+    sourceUrl = "${modelMovenetThunderDownloadint8Url}"
+    target = file("src/main/assets/movenet_thunder_int8.tflite")
+}
+
 
 task downloadMovenetMultiPoseModel(type: DownloadUrlTask) {
     def modelMovenetThunderDownloadUrl = "https://tfhub.dev/google/lite-model/movenet/multipose/lightning/tflite/float16/1?lite-format=tflite"
@@ -45,7 +65,9 @@ task downloadPoseClassifierModel(type: DownloadUrlTask) {
 
 task downloadModel {
     dependsOn downloadPosenetModel
+    dependsOn downloadMovenetLightningint8Model
     dependsOn downloadMovenetLightningModel
+    dependsOn downloadMovenetThunderint8Model
     dependsOn downloadMovenetThunderModel
     dependsOn downloadPoseClassifierModel
     dependsOn downloadMovenetMultiPoseModel
