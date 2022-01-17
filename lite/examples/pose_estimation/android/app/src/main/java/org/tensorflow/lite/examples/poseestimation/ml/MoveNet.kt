@@ -36,7 +36,9 @@ import kotlin.math.min
 
 enum class ModelType {
     Lightning,
-    Thunder
+    Lightningint8,
+    Thunder,
+    Thunderint8,
 }
 
 class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: GpuDelegate?, private var nnApiDelegate: NnApiDelegate?) :
@@ -54,6 +56,8 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
         // TFLite file names.
         private const val LIGHTNING_FILENAME = "movenet_lightning.tflite"
         private const val THUNDER_FILENAME = "movenet_thunder.tflite"
+        private const val LIGHTNING_INT8_FILENAME = "movenet_lightning_int8.tflite"
+        private const val THUNDER_INT8_FILENAME = "movenet_thunder_int8.tflite"
 
         // allow specifying model type.
         fun create(context: Context, device: Device, modelType: ModelType): MoveNet {
@@ -82,8 +86,12 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                 Interpreter(
                     FileUtil.loadMappedFile(
                         context,
-                        if (modelType == ModelType.Lightning) LIGHTNING_FILENAME
-                        else THUNDER_FILENAME
+                        when (modelType) {
+                            ModelType.Lightning -> LIGHTNING_FILENAME
+                            ModelType.Lightningint8 -> LIGHTNING_INT8_FILENAME
+                            ModelType.Thunder -> THUNDER_FILENAME
+                            ModelType.Thunderint8 -> THUNDER_INT8_FILENAME
+                        }
                     ), options
                 ),
                 gpuDelegate, nnApiDelegate
