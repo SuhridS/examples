@@ -51,6 +51,8 @@ class MainActivity : AppCompatActivity() {
      * 1 == MoveNet Thunder model
      * 2 == MoveNet MultiPose model
      * 3 == PoseNet model
+     * 4 == MoveNet Lightning int8 model
+     * 5 == MoveNet Thunder int8 model
      **/
     private var modelPos = 1
 
@@ -336,6 +338,20 @@ class MainActivity : AppCompatActivity() {
                 showDetectionScore(true)
                 showTracker(false)
                 PoseNet.create(this, device)
+            }
+            4 -> {
+                // MoveNet Lightning int8 (SinglePose)
+                showPoseClassifier(true)
+                showDetectionScore(true)
+                showTracker(false)
+                MoveNet.create(this, device, ModelType.Lightningint8)
+            }
+            5 -> {
+                // MoveNet Thunder int8 (SinglePose)
+                showPoseClassifier(true)
+                showDetectionScore(true)
+                showTracker(false)
+                MoveNet.create(this, device, ModelType.Thunderint8)
             }
             else -> {
                 null
