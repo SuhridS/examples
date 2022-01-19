@@ -26,16 +26,16 @@ import kotlin.math.max
 
 object VisualizationUtils {
     /** Radius of circle used to draw keypoints.  */
-    private const val CIRCLE_RADIUS = 6f
+    private const val CIRCLE_RADIUS = 3f
 
     /** Width of line used to connected two keypoints.  */
-    private const val LINE_WIDTH = 4f
+    private const val LINE_WIDTH = 2f
 
     /** The text size of the person id that will be displayed when the tracker is available.  */
-    private const val PERSON_ID_TEXT_SIZE = 30f
+    private const val PERSON_ID_TEXT_SIZE = 15f
 
     /** Distance from person id to the nose keypoint.  */
-    private const val PERSON_ID_MARGIN = 6f
+    private const val PERSON_ID_MARGIN = 3f
 
     /** Pair of keypoints to draw lines between.  */
     private val bodyJoints = listOf(
@@ -67,7 +67,7 @@ object VisualizationUtils {
     ): Bitmap {
         val paintCircle = Paint().apply {
             strokeWidth = CIRCLE_RADIUS
-            color = Color.RED
+            color = Color.GREEN
             style = Paint.Style.FILL
         }
         val paintLine = Paint().apply {
