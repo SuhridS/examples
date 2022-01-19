@@ -19,6 +19,7 @@ package org.tensorflow.lite.examples.poseestimation.ml
 import android.content.Context
 import android.graphics.*
 import android.os.SystemClock
+import android.util.Log
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.examples.poseestimation.data.*
@@ -68,10 +69,12 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
             options.setNumThreads(CPU_NUM_THREADS)
             when (device) {
                 Device.CPU -> {
+                    Log.d("Movenet", "CPU being used with $modelType")
                 }
                 Device.GPU -> {
                     gpuDelegate = GpuDelegate()
                     options.addDelegate(gpuDelegate)
+                    Log.d("Movenet", "GPU being used with $modelType")
                 }
                 //Device.NNAPI -> options.setUseNNAPI(true)
                 Device.NNAPI -> {
@@ -80,6 +83,7 @@ class MoveNet(private val interpreter: Interpreter, private var gpuDelegate: Gpu
                     nnapiopts.setUseNnapiCpu(false)
                     nnApiDelegate = NnApiDelegate(nnapiopts)
                     options.addDelegate(nnApiDelegate)
+                    Log.d("Movenet", "NNAPI being used with $modelType")
                 }
             }
             return MoveNet(
